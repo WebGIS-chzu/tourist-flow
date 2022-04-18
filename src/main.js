@@ -8,6 +8,8 @@ import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 // import 'font-awesome/css/font-awesome.min.css';
 
+import Icon from 'vue2-svg-icon/Icon'
+Vue.component('icon',Icon);
 // import 'cesium/Source/Widgets/widgets.css'
 // import Cesium from '../node_modules/cesium/Build/Cesium'
 // import Cesium from 'cesium/Source/Cesium'

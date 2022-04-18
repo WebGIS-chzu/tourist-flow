@@ -1,29 +1,34 @@
 <template>
   <div id="network">
     <div id="map1" />
-    <!-- 数量 -->
-    <div id="Number">
-      <ul>
-        <li>
-          <p class="publis xunt">{{ numbersName }}</p>
-          <div class="numbers">
-            {{ lose
-            }}<span
-              style="
-                font-size: 20px;
-                font-family: 'KuHei';
-                padding-left: 5px;
-                display: inline-block;
-                vertical-align: top;
-                color: rgb(180, 180, 180);
-              "
-              >人</span
-            >
+    <div class="network-right network-pt">
+      <div class="right-title"></div>
+      <div class="right-content">
+        <div class="datasource">
+          <div class="leftpt">数据源:</div>
+          <div class="rightpt">
+            <el-checkbox-group v-model="checkList">
+              <el-checkbox label="去哪儿"></el-checkbox>
+              <el-checkbox label="马蜂窝"></el-checkbox>
+              <el-checkbox label="携程网"></el-checkbox>
+              <el-checkbox label="途牛网"></el-checkbox>
+              <el-checkbox label="艺龙网"></el-checkbox>
+              <el-checkbox label="美团网"></el-checkbox>
+            </el-checkbox-group>
           </div>
-        </li>
-      </ul>
+        </div>
+        <div class="datacount"></div>
+        <div class="pathselect"></div>
+        <div class="dateselect"></div>
+      </div>
+      <div class="right-title"></div>
+      <div class="chart-content"></div>
     </div>
-    <div id="datasource">
+    <div class="network-bottom network-pt"></div>
+    <!-- 数量 -->
+    <!-- <div id="Number">
+    </div> -->
+    <!-- <div class="datasource">
       <div class="leftpt">数据源:</div>
       <div class="rightpt">
         <el-checkbox-group v-model="checkList">
@@ -35,17 +40,9 @@
           <el-checkbox label="美团网"></el-checkbox>
         </el-checkbox-group>
       </div>
-    </div>
+    </div> -->
     <!-- 查询类型 -->
     <div class="type">
-      <!-- <el-select v-model="value" placeholder="请选择" :popper-append-to-body="false" @change="scaleChange">
-        <el-option
-          v-for="item in options"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value"
-        />
-      </el-select> -->
       <el-select
         v-if="json.where > 0"
         v-model="mode"
@@ -62,42 +59,24 @@
         />
       </el-select>
     </div>
-    <div id="right">
-      <zoning />
-    </div>
-    <div id="monitor">
-      <div class="left">
-        <turnOut />
-      </div>
-      <div class="mid">
-        <turnIn />
-      </div>
-      <div class="right">
-        <heat />
-      </div>
-    </div>
     <!-- 城市选择器 -->
-    <selectRegion />
+    <selectRegion :right="320" />
   </div>
 </template>
 
 <script>
-import Zoning from "./components/zoning"; // 区划
-import TurnOut from "./components/turnOut"; // 拐出
-import TurnIn from "./components/turnIn"; // 拐入
-import Heat from "./components/heat"; // 拐入
+// import Zoning from "./components/zoning"; // 区划
+// import TurnOut from "./components/turnOut"; // 拐出
+// import TurnIn from "./components/turnIn"; // 拐入
+// import Heat from "./components/heat"; // 拐入
 import shiline from "./public/js/shiLine.json";
 import shengline from "./public/js/shengLine.json";
-import SelectRegion from "./components/selectRegionAH";
-import eventBum from "./public/js/EvebtBus";
+import SelectRegion from "../cityselect/newselectRegion.vue";
+import eventBum from "../cityselect/EvebtBus";
 export default {
   name: "Traffickingnetwork",
   components: {
     SelectRegion,
-    Zoning,
-    TurnOut,
-    TurnIn,
-    Heat,
   },
   data() {
     return {
@@ -153,10 +132,9 @@ export default {
   beforeDestroy() {
     // 关闭传值
     eventBum.$off("json");
-    document.getElementById("network").style.display = "none";
   },
   mounted() {
-    this.int();
+    // this.int();
     this.json.name = "安徽省";
     this.json.where = 1;
     this.scaleChange();
@@ -195,18 +173,6 @@ export default {
       var qianxidata = []; // 最终数据
       var middata = [];
       this.destroy();
-      if (this.json.name === "中国") {
-        this.addLayer(data);
-        document.getElementsByClassName("mid")[0].style.width =
-          "calc(20% - 2px)";
-        document.getElementsByClassName("right")[0].style.width =
-          "calc(60% - 2px)";
-      } else {
-        document.getElementsByClassName("mid")[0].style.width =
-          "calc(40% - 2px)";
-        document.getElementsByClassName("right")[0].style.width =
-          "calc(40% - 2px)";
-      }
       if (this.json.where === 1) {
         data = shengline;
         if (that.mode === "流出") {
@@ -569,231 +535,6 @@ export default {
 };
 </script>
 <style  scoped>
-#network {
-  position: absolute;
-  height: 100%;
-  width: 100%;
-}
-/* 地图 */
-#network #map1 {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
-}
-#network .type {
-  position: absolute;
-  z-index: 10;
-  top: 55px;
-  width: 180px;
-  right: 385px;
-  font-family: KuHei;
-  font-size: 14px;
-}
-
-#network .type >>> .el-input__inner {
-  text-align: center;
-  background-color: rgba(18, 18, 18, 0.4);
-  border: 1px solid rgba(175, 233, 215, 0.4);
-  padding-left: 30px !important;
-  padding-right: 30px !important;
-  color: #fff;
-  font-family: KuHei;
-}
-#network .type >>> .popper__arrow::after {
-  content: none;
-}
-#network .type >>> .el-select-dropdown {
-  background-color: rgba(18, 18, 18, 0.4);
-}
-#network .type >>> .el-select-dropdown__item {
-  text-align: center;
-  color: #fff;
-}
-#network .type >>> .el-select-dropdown__item.hover,
-#network .type >>> .el-select-dropdown__item:hover {
-  background-color: rgb(31, 33, 44) !important;
-}
-#network ul,
-#network p {
-  padding: 0;
-  margin: 0;
-  list-style-type: none;
-}
-#datasource {
-  position: absolute;
-  left: 45px;
-  top: 100px;
-  color: rgb(180, 180, 180);
-  width: 220px;
-  height: 97px;
-  text-align: center;
-  z-index: 10;
-  background: url("../../assets/img/矩形1718.png") no-repeat;
-  background-size: 100% 100%;
-  display: flex;
-  align-items: center;
-}
-#datasource .leftpt {
-  height: 100%;
-  width: 30%;
-  padding-left: 7px;
-  font-size: 12pt;
-  color: rgb(174, 193, 199);
-  align-items: center;
-  display: flex;
-}
-#datasource .rightpt {
-  width: 70%;
-  height: 100%;
-}
-/* 左侧数量 */
-#network #Number {
-  position: absolute;
-  left: 45px;
-  top: 5px;
-  color: rgb(180, 180, 180);
-  width: 220px;
-  height: 97px;
-  text-align: center;
-  z-index: 10;
-  background: url("../../assets/img/矩形1718.png") no-repeat;
-  background-size: 100% 100%;
-}
-#network #Number li {
-  /* background-color: rgba(18, 18, 18, 0.4); */
-  height: 90px;
-  margin: 5px 0;
-  position: relative;
-}
-#network #Number li .publis {
-  position: absolute;
-  width: 100%;
-  top: 10px;
-  margin: 0;
-  padding: 0;
-  height: 25px;
-  line-height: 25px;
-  letter-spacing: 2px;
-  font-family: KuHei;
-  cursor: pointer;
-  transition: all 1s;
-  font-size: 15px;
-}
-#network #Number li .publis:hover {
-  color: rgb(230, 230, 230);
-}
-#network #Number li .Tspan {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 10px;
-}
-#network #Number li .numbers {
-  position: absolute;
-  top: 35px;
-  height: 55px;
-  line-height: 55px;
-  width: 100%;
-  font-family: DIGIT;
-  font-size: 28px;
-  color: #fff;
-}
-/* 右侧 */
-#network #right {
-  position: absolute;
-  bottom: 10px;
-  right: 5px;
-  z-index: 1;
-  padding: 5px;
-  background-color: rgba(40, 43, 57, 0.1);
-  border: 2px solid rgba(25, 186, 139, 0.2);
-  width: 300px;
-  height: 85%;
-  color: #fff;
-  font-family: KuHei;
-  font-size: 14px;
-  border-radius: 2px;
-  background: url("./public/img/bg.png") rgba(18, 18, 18, 0.4);
-}
-#network #right ::after,
-#network #monitor .left ::after,
-#network #monitor .mid ::after,
-#network #monitor .right ::after {
-  position: absolute;
-  content: "";
-  bottom: -2px;
-  right: -2px;
-  height: 10px;
-  width: 10px;
-  border-bottom: 2px solid #02a6b5;
-  border-right: 2px solid #02a6b5;
-  transition: all 1.5s;
-  z-index: 0;
-}
-
-#network #right ::before,
-#network #monitor .left ::before,
-#network #monitor .mid ::before,
-#network #monitor .right ::before {
-  position: absolute;
-  content: "";
-  top: -2px;
-  left: -2px;
-  height: 10px;
-  width: 10px;
-  border-top: 2px solid #02a6b5;
-  border-left: 2px solid #02a6b5;
-  transition: all 1.5s;
-  z-index: 0;
-}
-/* 下方 */
-/* 监测 */
-#network #monitor {
-  position: absolute;
-  width: calc((100% - 20%) - 5px);
-  left: 5px;
-  bottom: 9px;
-  height: 30%;
-  font-family: KuHei;
-  /* border: 1px solid rgba(25, 186, 139, 0.2); */
-  /* background: url("./public/img/bg.png") rgba(255, 255, 255, 0.1); */
-  /* background: url("./public/img/bg.png") rgba(18, 18, 18, 0.4); */
-}
-#network #monitor .left {
-  position: absolute;
-  width: calc(20% - 2px);
-  left: 0px;
-  bottom: 0px;
-  height: 100%;
-  font-family: KuHei;
-  border: 1px solid rgba(25, 186, 139, 0.2);
-  /* background: url("./public/img/bg.png") rgba(255, 255, 255, 0.1); */
-  background: url("./public/img/bg.png") rgba(18, 18, 18, 0.4);
-}
-#network #monitor .mid {
-  position: absolute;
-  width: calc(20% - 2px);
-  left: calc(20% + 1px);
-  bottom: 0px;
-  height: 100%;
-  font-family: KuHei;
-  border: 1px solid rgba(25, 186, 139, 0.2);
-  /* background: url("./public/img/bg.png") rgba(255, 255, 255, 0.1); */
-  background: url("./public/img/bg.png") rgba(18, 18, 18, 0.4);
-}
-#network #monitor .right {
-  position: absolute;
-  width: calc(60% - 2px);
-  right: 0;
-  bottom: 0px;
-  height: 100%;
-  font-family: KuHei;
-  border: 1px solid rgba(25, 186, 139, 0.2);
-  /* background: url("./public/img/bg.png") rgba(255, 255, 255, 0.1); */
-  background: url("./public/img/bg.png") rgba(18, 18, 18, 0.4);
-}
 .el-checkbox-group {
   width: 100%;
   flex-direction: row;
@@ -813,4 +554,152 @@ export default {
   margin-top: 5%;
   margin-left: 0%;
 }
+</style>
+<style lang="less" scoped>
+#network {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+.network-pt {
+  padding: 7px;
+}
+.network-right {
+  position: absolute;
+  right: 0.4%;
+  top: 0.6%;
+  width: calc(20vw);
+  height: 98.5%;
+  background: url("../../assets/img/side.png");
+  .right-title {
+    height: 4%;
+    width: 100%;
+    background: url("../../assets/img/titlebg.png") no-repeat;
+    background-size: 60% 100%;
+  }
+  .right-content {
+    height: 35%;
+    width: 100%;
+    .datasource {
+      height: 24%;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      .leftpt {
+        flex: 3;
+        font-size: 12pt;
+        color: rgb(174, 193, 199);
+        text-align: right;
+      }
+      .rightpt {
+        flex: 10;
+        padding-top: 2%;
+        .el-checkbox-group {
+          width: 100%;
+          .el-checkbox {
+            color: rgb(174, 193, 199);
+            color: #aec1c7;
+            margin-left: 3%;
+            margin-top: 0%;
+            margin-bottom: 2%;
+          }
+          /deep/.el-checkbox__input.is-checked + .el-checkbox__label {
+            color: #85caca;
+          }
+          /deep/.el-checkbox__input.is-checked .el-checkbox__inner {
+            background-color: #85caca;
+          }
+          /deep/.el-checkbox__label {
+            padding-left: 4px;
+          }
+        }
+      }
+    }
+  }
+  .chart-content {
+    width: 100%;
+    height: 58%;
+  }
+}
+.network-bottom {
+  position: absolute;
+  left: 0.4%;
+  bottom: 1%;
+  width: calc(79vw);
+  height: calc(30vh);
+  background-color: rgba(0, 255, 255, 0.432);
+}
+// .datasource {
+//   position: absolute;
+//   top: 1%;
+//   right: 1%;
+//   background-color: #0f5a75a9;
+//   background-image: url("./public/img/ptbg.png");
+//   background-size: 100% 100%;
+//   width: 220px;
+//   height: 110px;
+//   line-height: 30px;
+//   cursor: move;
+//   user-select: none;
+//   display: flex;
+//   align-items: center;
+//   .leftpt {
+//     flex: 3;
+//     font-size: 12pt;
+//     color: rgb(174, 193, 199);
+//     text-align: right;
+//   }
+//   .rightpt {
+//     flex: 8;
+//     .el-checkbox-group {
+//       width: 100%;
+//       .el-checkbox {
+//         color: rgb(174, 193, 199);
+//         margin-right: 5%;
+//         margin-top: 0%;
+//         margin-bottom: 0%;
+//         margin-left: 0%;
+//       }
+//       /deep/.el-checkbox__label {
+//         padding-left: 0%;
+//       }
+//       /deep/.el-checkbox__input.is-checked + .el-checkbox__label {
+//         color: #85caca;
+//       }
+//       /deep/.el-checkbox__input.is-checked .el-checkbox__inner {
+//         background-color: #85caca;
+//       }
+//     }
+//   }
+// }
+// .type{
+//   position: absolute;
+//   top: 9%;
+//   right: 15.7%;
+//   background-color: #0f5a75a9;
+//   background-image: url("./public/img/ptbg.png");
+//   background-size: 100% 100%;
+//   width: 180px;
+//   // height: 110px;
+//   line-height: 30px;
+//   cursor: move;
+//   user-select: none;
+//   display: flex;
+//   align-items: center;
+// }
+// #Number{
+//   position: absolute;
+//   top: 17%;
+//   right: 1%;
+//   background-color: #0f5a75a9;
+//   background-image: url("./public/img/ptbg.png");
+//   background-size: 100% 100%;
+//   width: 220px;
+//   height: 110px;
+//   line-height: 30px;
+//   cursor: move;
+//   user-select: none;
+//   display: flex;
+//   align-items: center;
+// }
 </style>
