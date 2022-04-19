@@ -2,45 +2,37 @@
   <div id="network">
     <div id="map1" />
     <div class="network-right network-pt">
-      <div class="right-title"></div>
+      <div class="right-title">
+        <span>分析条件</span>
+      </div>
       <div class="right-content">
-        <div class="datasource">
-          <div class="leftpt">数据源:</div>
-          <div class="rightpt">
-            <el-checkbox-group v-model="checkList">
-              <el-checkbox label="去哪儿"></el-checkbox>
-              <el-checkbox label="马蜂窝"></el-checkbox>
-              <el-checkbox label="携程网"></el-checkbox>
-              <el-checkbox label="途牛网"></el-checkbox>
-              <el-checkbox label="艺龙网"></el-checkbox>
-              <el-checkbox label="美团网"></el-checkbox>
-            </el-checkbox-group>
-          </div>
+        <div class="smalltitle">
+          <div class="imgcontent"></div>
+          <div class="textcontent">数据源选择</div>
         </div>
-        <div class="datacount"></div>
+        <div class="datasource">
+          <el-checkbox-group v-model="checkList">
+            <el-checkbox label="去哪儿"></el-checkbox>
+            <el-checkbox label="马蜂窝"></el-checkbox>
+            <el-checkbox label="携程网"></el-checkbox>
+            <el-checkbox label="途牛网"></el-checkbox>
+            <el-checkbox label="艺龙网"></el-checkbox>
+            <el-checkbox label="美团网"></el-checkbox>
+          </el-checkbox-group>
+        </div>
+        <div class="datacount">
+          <div class="touristcount"></div>
+          <div class="prfercount"></div>
+        </div>
         <div class="pathselect"></div>
         <div class="dateselect"></div>
       </div>
-      <div class="right-title"></div>
+      <div class="right-title">
+        <span>{{ 1 }}游客{{ 1 }}统计</span>
+      </div>
       <div class="chart-content"></div>
     </div>
     <div class="network-bottom network-pt"></div>
-    <!-- 数量 -->
-    <!-- <div id="Number">
-    </div> -->
-    <!-- <div class="datasource">
-      <div class="leftpt">数据源:</div>
-      <div class="rightpt">
-        <el-checkbox-group v-model="checkList">
-          <el-checkbox label="去哪儿"></el-checkbox>
-          <el-checkbox label="马蜂窝"></el-checkbox>
-          <el-checkbox label="携程网"></el-checkbox>
-          <el-checkbox label="途牛网"></el-checkbox>
-          <el-checkbox label="艺龙网"></el-checkbox>
-          <el-checkbox label="美团网"></el-checkbox>
-        </el-checkbox-group>
-      </div>
-    </div> -->
     <!-- 查询类型 -->
     <div class="type">
       <el-select
@@ -134,7 +126,7 @@ export default {
     eventBum.$off("json");
   },
   mounted() {
-    // this.int();
+    this.int();
     this.json.name = "安徽省";
     this.json.where = 1;
     this.scaleChange();
@@ -576,42 +568,66 @@ export default {
     width: 100%;
     background: url("../../assets/img/titlebg.png") no-repeat;
     background-size: 60% 100%;
+    > span {
+      color: #e2ebeb;
+      display: block;
+      padding-left: 14%;
+      font-size: 15px;
+      line-height: 28px;
+      text-align: left;
+      text-shadow: 0 0 8px #fff, 0 0 10px #fff,
+        0 0 12px rgba(48, 218, 218, 0.397);
+    }
   }
   .right-content {
     height: 35%;
     width: 100%;
+    padding-top: 1%;
+    .smalltitle {
+      padding: 4px;
+      height: 26px;
+      width: 100%;
+      display: flex;
+      .imgcontent {
+        height: 100%;
+        width: 3%;
+        background: url("../../assets/img/矩形777.png") no-repeat;
+        background-size: 40% 100%;
+      }
+      .textcontent {
+        height: 100%;
+        width: 90%;
+        text-align: left;
+        color: #35c8e4;
+        font-size: 14px;
+        line-height: 17px;
+      }
+    }
     .datasource {
       height: 24%;
       width: 100%;
       display: flex;
       align-items: center;
-      .leftpt {
-        flex: 3;
-        font-size: 12pt;
-        color: rgb(174, 193, 199);
-        text-align: right;
-      }
-      .rightpt {
-        flex: 10;
-        padding-top: 2%;
-        .el-checkbox-group {
-          width: 100%;
-          .el-checkbox {
-            color: rgb(174, 193, 199);
-            color: #aec1c7;
-            margin-left: 3%;
-            margin-top: 0%;
-            margin-bottom: 2%;
-          }
-          /deep/.el-checkbox__input.is-checked + .el-checkbox__label {
-            color: #85caca;
-          }
-          /deep/.el-checkbox__input.is-checked .el-checkbox__inner {
-            background-color: #85caca;
-          }
-          /deep/.el-checkbox__label {
-            padding-left: 4px;
-          }
+      background: url("../../assets/img/buttonbg.png") center no-repeat;
+      background-size: 97% 97%;
+      .el-checkbox-group {
+        width: 100%;
+        .el-checkbox {
+          color: rgb(174, 193, 199);
+          color: #aec1c7;
+          margin-left: 4%;
+          margin-right: 4%;
+          margin-top: 1%;
+          margin-bottom: 1%;
+        }
+        /deep/.el-checkbox__input.is-checked + .el-checkbox__label {
+          color: #85caca;
+        }
+        /deep/.el-checkbox__input.is-checked .el-checkbox__inner {
+          background-color: #85caca;
+        }
+        /deep/.el-checkbox__label {
+          padding-left: 7px;
         }
       }
     }
