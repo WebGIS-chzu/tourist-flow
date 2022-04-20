@@ -7,7 +7,6 @@
       </div>
       <div class="right-content">
         <div class="smalltitle">
-          <div class="imgcontent"></div>
           <div class="textcontent">数据源选择</div>
         </div>
         <div class="datasource">
@@ -20,38 +19,41 @@
             <el-checkbox label="美团网"></el-checkbox>
           </el-checkbox-group>
         </div>
-        <div class="datacount">
+        <div class="smalltitle">
+          <div class="textcontent">分析路径</div>
+        </div>
+        <div class="pathselect">
+          <div class="selectcontent">
+            <el-select
+              v-if="json.where > 0"
+              v-model="mode"
+              style=""
+              placeholder="流出"
+              :popper-append-to-body="false"
+              @change="scaleChange"
+            >
+              <el-option
+                v-for="item in modeOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </div>
+        </div>
+        <!-- <div class="datacount">
           <div class="touristcount"></div>
           <div class="prfercount"></div>
         </div>
-        <div class="pathselect"></div>
-        <div class="dateselect"></div>
+        <div class="dateselect"></div> -->
       </div>
       <div class="right-title">
-        <span>{{ 1 }}游客{{ 1 }}统计</span>
+        <span>{{ wherename }}游客{{ mode }}统计</span>
       </div>
-      <div class="chart-content"></div>
+      <div class="chart-content" id="chart1"></div>
     </div>
     <div class="network-bottom network-pt"></div>
-    <!-- 查询类型 -->
-    <div class="type">
-      <el-select
-        v-if="json.where > 0"
-        v-model="mode"
-        style=""
-        placeholder="请选择"
-        :popper-append-to-body="false"
-        @change="scaleChange"
-      >
-        <el-option
-          v-for="item in modeOptions"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value"
-        />
-      </el-select>
-    </div>
-    <!-- 城市选择器 -->
+
     <selectRegion :right="320" />
   </div>
 </template>
@@ -73,9 +75,10 @@ export default {
   data() {
     return {
       checkList: ["途牛网", "携程网", "马蜂窝", "去哪儿"],
+      wherename: "安徽",
       json: {
-        name: "中国",
-        where: 0,
+        name: "安徽",
+        where: 1,
         code: "",
       },
       numbersName: "已爬取评论总数",
@@ -126,12 +129,13 @@ export default {
     eventBum.$off("json");
   },
   mounted() {
-    this.int();
-    this.json.name = "安徽省";
+    // this.int();
+    this.json.name = this.mode;
     this.json.where = 1;
     this.scaleChange();
     // 城市名称
     eventBum.$on("json", (json) => {
+      this.wherename = json.name;
       this.json.name = json.name;
       this.json.where = json.where;
       this.scaleChange();
@@ -139,6 +143,20 @@ export default {
     });
   },
   methods: {
+    postPathData(mode) {
+      let that = this;
+      request
+        .post("/api/data/commentDay", {
+          level: that.json.where,
+          path: mode,
+          name: that.json.name,
+        })
+        .then((res) => {
+          console.log(res);
+          if (res.code == 0) {
+          }
+        });
+    },
     int() {
       var that = this;
       var webGlobe = new Cesium.WebSceneControl("map1", {
@@ -165,6 +183,7 @@ export default {
       var qianxidata = []; // 最终数据
       var middata = [];
       this.destroy();
+      this.postPathData(that.mode);
       if (this.json.where === 1) {
         data = shengline;
         if (that.mode === "流出") {
@@ -580,31 +599,28 @@ export default {
     }
   }
   .right-content {
-    height: 35%;
+    height: 33%;
     width: 100%;
     padding-top: 1%;
     .smalltitle {
       padding: 4px;
-      height: 26px;
+      height: 24px;
       width: 100%;
+      margin: 2% 0% 2% 0%;
       display: flex;
-      .imgcontent {
-        height: 100%;
-        width: 3%;
-        background: url("../../assets/img/矩形777.png") no-repeat;
-        background-size: 40% 100%;
-      }
       .textcontent {
+        border-left: 4px solid #1af3f3;
+        padding-left: 2%;
         height: 100%;
         width: 90%;
         text-align: left;
-        color: #35c8e4;
+        color: #35d8e4;
         font-size: 14px;
-        line-height: 17px;
+        line-height: 18px;
       }
     }
     .datasource {
-      height: 24%;
+      height: 35%;
       width: 100%;
       display: flex;
       align-items: center;
@@ -631,10 +647,50 @@ export default {
         }
       }
     }
+    .pathselect {
+      height: 30%;
+      width: 100%;
+      .selectcontent {
+        height: 100%;
+        width: 100%;
+
+        display: flex;
+        align-items: center;
+        .el-select {
+          margin: auto;
+        }
+      }
+      /deep/.el-input__inner {
+        text-align: center;
+        background-color: rgba(18, 18, 18, 0.4);
+        border: 1px solid rgba(175, 233, 215, 0.4);
+        padding-left: 30px !important;
+        padding-right: 30px !important;
+        color: #fff;
+        font-family: KuHei;
+      }
+      /deep/.popper__arrow::after {
+        content: none;
+      }
+      /deep/.el-popper {
+        border: 1px solid #41d6e263 !important;
+      }
+      /deep/.el-select-dropdown {
+        background-color: rgba(18, 18, 18, 0.4);
+      }
+      /deep/.el-select-dropdown__item {
+        text-align: center;
+        color: #fff;
+      }
+      /deep/.el-select-dropdown__item.hover,
+      .el-select-dropdown__item:hover {
+        background-color: rgb(31, 33, 44) !important;
+      }
+    }
   }
   .chart-content {
     width: 100%;
-    height: 58%;
+    height: 60%;
   }
 }
 .network-bottom {
@@ -642,80 +698,8 @@ export default {
   left: 0.4%;
   bottom: 1%;
   width: calc(79vw);
-  height: calc(30vh);
-  background-color: rgba(0, 255, 255, 0.432);
+  height: calc(35vh);
+  background: url("../../assets/img/长方形.png");
+  background-size: 100% 100%;
 }
-// .datasource {
-//   position: absolute;
-//   top: 1%;
-//   right: 1%;
-//   background-color: #0f5a75a9;
-//   background-image: url("./public/img/ptbg.png");
-//   background-size: 100% 100%;
-//   width: 220px;
-//   height: 110px;
-//   line-height: 30px;
-//   cursor: move;
-//   user-select: none;
-//   display: flex;
-//   align-items: center;
-//   .leftpt {
-//     flex: 3;
-//     font-size: 12pt;
-//     color: rgb(174, 193, 199);
-//     text-align: right;
-//   }
-//   .rightpt {
-//     flex: 8;
-//     .el-checkbox-group {
-//       width: 100%;
-//       .el-checkbox {
-//         color: rgb(174, 193, 199);
-//         margin-right: 5%;
-//         margin-top: 0%;
-//         margin-bottom: 0%;
-//         margin-left: 0%;
-//       }
-//       /deep/.el-checkbox__label {
-//         padding-left: 0%;
-//       }
-//       /deep/.el-checkbox__input.is-checked + .el-checkbox__label {
-//         color: #85caca;
-//       }
-//       /deep/.el-checkbox__input.is-checked .el-checkbox__inner {
-//         background-color: #85caca;
-//       }
-//     }
-//   }
-// }
-// .type{
-//   position: absolute;
-//   top: 9%;
-//   right: 15.7%;
-//   background-color: #0f5a75a9;
-//   background-image: url("./public/img/ptbg.png");
-//   background-size: 100% 100%;
-//   width: 180px;
-//   // height: 110px;
-//   line-height: 30px;
-//   cursor: move;
-//   user-select: none;
-//   display: flex;
-//   align-items: center;
-// }
-// #Number{
-//   position: absolute;
-//   top: 17%;
-//   right: 1%;
-//   background-color: #0f5a75a9;
-//   background-image: url("./public/img/ptbg.png");
-//   background-size: 100% 100%;
-//   width: 220px;
-//   height: 110px;
-//   line-height: 30px;
-//   cursor: move;
-//   user-select: none;
-//   display: flex;
-//   align-items: center;
-// }
 </style>

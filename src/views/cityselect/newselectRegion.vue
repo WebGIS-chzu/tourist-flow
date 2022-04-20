@@ -103,8 +103,8 @@ export default {
   data() {
     return {
       json: {
-        name: "中国",
-        where: 0,
+        name: "安徽",
+        where: 1,
         code: "",
       },
       province: [],
