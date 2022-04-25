@@ -49,6 +49,16 @@
       </div>
       <div class="right-title">
         <span>{{ wherename }}游客{{ mode }}统计</span>
+        <div class="chartselect">
+          <el-radio-group
+            v-model="isCollapse"
+            @change="changeChartTab"
+            style="margin-bottom: 20px"
+          >
+            <el-radio-button :label="false">热度榜</el-radio-button>
+            <el-radio-button :label="true">评价榜</el-radio-button>
+          </el-radio-group>
+        </div>
       </div>
       <div class="chart-content" id="chart1"></div>
     </div>
@@ -59,6 +69,7 @@
 </template>
 
 <script>
+import request from "../../utils/request";
 // import Zoning from "./components/zoning"; // 区划
 // import TurnOut from "./components/turnOut"; // 拐出
 // import TurnIn from "./components/turnIn"; // 拐入
@@ -74,6 +85,10 @@ export default {
   },
   data() {
     return {
+      //图表数据
+      isCollapse: false,
+      data1x: [],
+      data1y: [],
       checkList: ["途牛网", "携程网", "马蜂窝", "去哪儿"],
       wherename: "安徽",
       json: {
@@ -92,10 +107,6 @@ export default {
         {
           value: "市际",
           label: "市际",
-        },
-        {
-          value: "区县",
-          label: "区县",
         },
       ],
       value: "省际",
@@ -129,8 +140,8 @@ export default {
     eventBum.$off("json");
   },
   mounted() {
-    // this.int();
-    this.json.name = this.mode;
+    this.int();
+    this.json.name = "安徽省";
     this.json.where = 1;
     this.scaleChange();
     // 城市名称
@@ -144,18 +155,127 @@ export default {
   },
   methods: {
     postPathData(mode) {
+      var name = this.json.name;
+      name = name.replace("省", "");
+      name = name.replace("市", "");
       let that = this;
       request
-        .post("/api/data/commentDay", {
-          level: that.json.where,
-          path: mode,
-          name: that.json.name,
+        .post("/api/data/outPut", {
+          model: name,
+          type: (this.json.where == "1" ? 0 : 1).toString(),
+          path: (mode == "流出" ? 0 : 1).toString(),
         })
         .then((res) => {
           console.log(res);
-          if (res.code == 0) {
+          var i = 20;
+          this.data1x.length = 0;
+          this.data1y.length = 0;
+          for (i; i >= 0; i--) {
+            this.data1x.push(res.data[i].destination);
+            this.data1y.push(res.data[i].count);
           }
+          this.renderChart1();
         });
+    },
+    postPathDataScore(mode) {
+      var name = this.json.name;
+      name = name.replace("省", "");
+      name = name.replace("市", "");
+      let that = this;
+      request
+        .post("/api/data/opScore", {
+          model: name,
+          type: (this.json.where == "1" ? 0 : 1).toString(),
+          path: (mode == "流出" ? 0 : 1).toString(),
+        })
+        .then((res) => {
+          console.log(res);
+          var i = 20;
+          this.data1x.length = 0;
+          this.data1y.length = 0;
+          for (i; i >= 0; i--) {
+            this.data1x.push(res.data[i].destination);
+            if(res.data[i].score!=5){
+              res.data[i].score=res.data[i].score.toFixed(2)
+            }
+            this.data1y.push(res.data[i].score);
+          }
+          this.renderChart1();
+        });
+    },
+    renderChart1() {
+      let myChart = this.$echarts.init(document.getElementById("chart1"));
+      myChart.setOption({
+        tooltip: {
+          trigger: "axis",
+          axisPointer: {
+            type: "shadow",
+          },
+        },
+        grid: {
+          x: 45,
+          y: 15,
+          x2: 25,
+          y2: 20,
+          // containLabel: true,
+        },
+        xAxis: {
+          type: "value",
+          min: 'dataMin',
+          splitNumber: 4,
+          splitLine: {
+            show: false,
+          },
+          axisLine: {
+            //这是x轴文字颜色
+            lineStyle: {
+              // color: " #999999",
+              color: "#fff",
+            },
+          },
+          boundaryGap: [0, 0],
+        },
+        yAxis: {
+          type: "category",
+
+          axisLine: {
+            //这是x轴文字颜色
+            lineStyle: {
+              // color: " #999999",
+              color: "#fff",
+            },
+          },
+          data: this.data1x,
+        },
+        series: [
+          {
+            barWidth: 13,
+            type: "bar",
+            data: this.data1y,
+            showBackground: true,
+            itemStyle: {
+              color: new this.$echarts.graphic.LinearGradient(1, 0, 0, 0, [
+                { offset: 0, color: "#30A0A9" },
+                { offset: 0.5, color: "#43DEEB" },
+                { offset: 1, color: "#43DEEB" },
+              ]),
+            },
+            label: {
+              show: true,
+              position: "right",
+              color: "white",
+            },
+          },
+        ],
+      });
+    },
+    changeChartTab(val) {
+      console.log(val);
+      if (!val) {
+        this.postPathData(this.mode);
+      } else {
+        this.postPathDataScore(this.mode);
+      }
     },
     int() {
       var that = this;
@@ -174,7 +294,7 @@ export default {
         destination: center,
       });
       that.addLayer(shengline);
-      this.echartsRight(shengline, 0);
+      // this.echartsRight(shengline, 0);
     },
     // 切换尺度
     scaleChange() {
@@ -289,7 +409,6 @@ export default {
           return a.count - b.count;
         });
         this.addcurveLayer(qianxidata);
-        eventBum.$emit("right", [that.mode, qianxidata, this.json.where]);
       }
       var count = 0;
       for (let y = 0; y < qianxidata.length; y++) {
@@ -541,7 +660,7 @@ export default {
         that.pointDataSet.set(pointData);
       }
     },
-    echartsRight(datas, e) {},
+    // echartsRight(datas, e) {},
   },
 };
 </script>
@@ -691,6 +810,29 @@ export default {
   .chart-content {
     width: 100%;
     height: 60%;
+  }
+}
+.chartselect {
+  width: 100px;
+  height: 28px;
+  top: 37.5%;
+  right: 4%;
+  background-color: transparent;
+  position: absolute;
+  display: flex;
+  /deep/.el-radio-button__inner {
+    padding: 6px 5px;
+    font-size: 13px;
+    border: none;
+  }
+  /deep/.el-radio-button__orig-radio:checked + .el-radio-button__inner {
+    border: none;
+    background: url("../../assets/img/tabchosenBG.png") no-repeat center center;
+  }
+  /deep/.el-radio-button__inner {
+    color: white;
+    border: none;
+    background: url("../../assets/img/tabBG.png") no-repeat center center;
   }
 }
 .network-bottom {
