@@ -195,8 +195,8 @@ export default {
           this.data1y.length = 0;
           for (i; i >= 0; i--) {
             this.data1x.push(res.data[i].destination);
-            if(res.data[i].score!=5){
-              res.data[i].score=res.data[i].score.toFixed(2)
+            if (res.data[i].score != 5) {
+              res.data[i].score = res.data[i].score.toFixed(2);
             }
             this.data1y.push(res.data[i].score);
           }
@@ -221,7 +221,7 @@ export default {
         },
         xAxis: {
           type: "value",
-          min: 'dataMin',
+          min: "dataMin",
           splitNumber: 4,
           splitLine: {
             show: false,
@@ -293,7 +293,7 @@ export default {
       that.map.scene.camera.setView({
         destination: center,
       });
-      that.addLayer(shengline);
+      // that.addLayer(shengline);
       // this.echartsRight(shengline, 0);
     },
     // 切换尺度
@@ -405,9 +405,9 @@ export default {
           showClose: true,
         });
       } else {
-        qianxidata.sort(function (a, b) {
-          return a.count - b.count;
-        });
+        // qianxidata.sort(function (a, b) {
+        //   return a.count - b.count;
+        // });
         this.addcurveLayer(qianxidata);
       }
       var count = 0;
@@ -488,7 +488,7 @@ export default {
             1.0: "#ffaa00",
           },
           lineWidth: 0.5,
-          // max: 5,
+          max: 5,
           draw: "intensity",
         };
         that.countryLineLayer = new CesiumZondy.Overlayer.MapvLayer(
@@ -571,7 +571,7 @@ export default {
               type: "Point",
               coordinates: curve[j],
             },
-            count: 1,
+            count: j,
             time: j,
           });
         }
@@ -601,7 +601,9 @@ export default {
           that.textDataSet,
           textOptions
         );
+
         that.lineDataSet = new mapv.DataSet(lineData);
+                console.log(that.lineDataSet);
         var lineOptions = {
           context: "2d",
           strokeStyle: "rgba(255, 250, 50, 0.8)",
@@ -644,9 +646,18 @@ export default {
               end: 50,
             },
             trails: 10,
-            duration: 2,
+            duration: 5,
           },
-          draw: "simple",
+          draw: "heatmap",
+          size: 20, // 每个热力点半径大小
+          gradient: {
+            // 热力图渐变色
+            0.25: "rgb(0,0,255)",
+            0.55: "rgb(0,255,0)",
+            0.85: "yellow",
+            1.0: "rgb(255,0,0)",
+          },
+          max: 100, // 最大权重值
         };
         new CesiumZondy.Overlayer.MapvLayer(
           that.map,
