@@ -41,11 +41,6 @@
             </el-select>
           </div>
         </div>
-        <!-- <div class="datacount">
-          <div class="touristcount"></div>
-          <div class="prfercount"></div>
-        </div>
-        <div class="dateselect"></div> -->
       </div>
       <div class="right-title">
         <span>{{ wherename }}游客{{ mode }}统计</span>
@@ -62,7 +57,9 @@
       </div>
       <div class="chart-content" id="chart1"></div>
     </div>
-    <div class="network-bottom network-pt"></div>
+    <div class="network-bottom network-pt">
+      
+    </div>
 
     <selectRegion :right="320" />
   </div>
@@ -657,7 +654,7 @@ export default {
             0.85: "yellow",
             1.0: "rgb(255,0,0)",
           },
-          max: 100, // 最大权重值
+          max: 150, // 最大权重值
         };
         new CesiumZondy.Overlayer.MapvLayer(
           that.map,
