@@ -394,84 +394,83 @@ export default {
         ],
       });
     },
-    renderChart3(val) {
-      let myChart = echarts.init(document.getElementById("chart3"));
-      var option;
-let base = +new Date(1968, 9, 3);
-let oneDay = 24 * 3600 * 1000;
-let date = [];
-let data = [Math.random() * 300];
-for (let i = 1; i < 20000; i++) {
-  var now = new Date((base += oneDay));
-  date.push([now.getFullYear(), now.getMonth() + 1, now.getDate()].join('/'));
-  data.push(Math.round((Math.random() - 0.5) * 20 + data[i - 1]));
-}
-option = {
-  tooltip: {
-    trigger: 'axis',
-    position: function (pt) {
-      return [pt[0], '10%'];
-    }
-  },
-  title: {
-    left: 'center',
-    text: 'Large Area Chart'
-  },
-  toolbox: {
-    feature: {
-      dataZoom: {
-        yAxisIndex: 'none'
-      },
-      restore: {},
-      saveAsImage: {}
-    }
-  },
-  xAxis: {
-    type: 'category',
-    boundaryGap: false,
-    data: date
-  },
-  yAxis: {
-    type: 'value',
-    boundaryGap: [0, '100%']
-  },
-  dataZoom: [
-    {
-      type: 'inside',
-      start: 0,
-      end: 10
-    },
-    {
-      start: 0,
-      end: 10
-    }
-  ],
-  series: [
-    {
-      name: 'Fake Data',
-      type: 'line',
-      symbol: 'none',
+    renderChart3(data) {
+      let base = 1577846440000;
+      let oneDay = 24 * 3600 * 1000;
+      let date = [];
+      for (let i = 1; i < 1200; i++) {
+        var now = new Date((base += oneDay));
+        date.push(
+          [now.getFullYear(), now.getMonth() + 1, now.getDate()].join("/")
+        );
+      }
+      let myChart = this.$echarts.init(document.getElementById("chart3"));
+      myChart.setOption({
+        xAxis: {
+          type: "category",
+          data: date,
+          axisLine: {
+            lineStyle: {
+              color: "white",
+            },
+          },
+        },
+        grid: {
+          left: "2%", //图表距边框的距离
+          right: "2%",
+          bottom: "10%",
+          top: "8%",
+          containLabel: true,
+        },
+        yAxis: {
+          type: "value",
+          splitLine: { show: false },
+          boundaryGap: false,
+          axisLine: {
+            lineStyle: {
+              color: "white",
+            },
+          },
+        },
+        dataZoom: [
+          {
+            type: "inside",
+            start: 0,
+            end: 10,
+            height: "15",
+            bottom: "1%",
+          },
+          {
+            start: 0,
+            end: 10,
+            height: "15",
+            bottom: "1%",
+          },
+        ],
+        series: [
+          {
+            data: data,
+            type: "line",
+            symbol: 'none',
       sampling: 'lttb',
       itemStyle: {
-        color: 'rgb(255, 70, 131)'
+        color: '#F2597F'
       },
       areaStyle: {
-        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+        color: this.$echarts.graphic.LinearGradient(0, 0, 0, 1, [
           {
             offset: 0,
-            color: 'rgb(255, 158, 68)'
+            color: 'rgba(213,72,120,0.8)'
           },
           {
             offset: 1,
-            color: 'rgb(255, 70, 131)'
+            color: 'rgba(213,72,120,0.3)'
           }
         ])
       },
-      data: data
-    }
-  ]
-};
-      option && myChart.setOption(option);
+          },
+        ],
+      });
     },
     changeChartTab(val) {
       console.log(val);
