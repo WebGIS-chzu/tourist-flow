@@ -58,7 +58,18 @@
       <div class="chart-content" id="chart1"></div>
     </div>
     <div class="network-bottom network-pt">
-      
+      <div class="network-bottom-content">
+        <div class="right-title">
+          <span>{{ wherename }}{{ mode }}游客景点选择排行</span>
+        </div>
+        <div class="chart" id="chart2"></div>
+      </div>
+      <div class="network-bottom-content">
+        <div class="right-title">
+          <span>分析条件</span>
+        </div>
+        <div class="chart" id="chart3"></div>
+      </div>
     </div>
 
     <selectRegion :right="320" />
@@ -151,6 +162,38 @@ export default {
     });
   },
   methods: {
+    postScenicChange(mode) {
+      var name = this.json.name;
+      name = name.replace("省", "");
+      name = name.replace("市", "");
+      let that = this;
+      request
+        .post("/api/data/opScenic", {
+          model: name,
+          type: (this.json.where == "1" ? 0 : 1).toString(),
+          path: (mode == "流出" ? 0 : 1).toString(),
+        })
+        .then((res) => {
+          console.log(res);
+          this.renderChart2(res.data);
+        });
+    },
+    postDayChange(mode) {
+      var name = this.json.name;
+      name = name.replace("省", "");
+      name = name.replace("市", "");
+      let that = this;
+      request
+        .post("/api/data/opDay", {
+          model: name,
+          type: (this.json.where == "1" ? 0 : 1).toString(),
+          path: (mode == "流出" ? 0 : 1).toString(),
+        })
+        .then((res) => {
+          console.log(res);
+          this.renderChart3(res.data.count);
+        });
+    },
     postPathData(mode) {
       var name = this.json.name;
       name = name.replace("省", "");
@@ -266,6 +309,170 @@ export default {
         ],
       });
     },
+    renderChart2(data) {
+      let myChart = this.$echarts.init(document.getElementById("chart2"));
+      myChart.setOption({
+        tooltip: {
+          trigger: "axis",
+          position: function (pt) {
+            return [pt[0], "10%"];
+          },
+        },
+        grid: {
+          left: "2%", //图表距边框的距离
+          right: "2%",
+          bottom: "10%",
+          top: "8%",
+          containLabel: true,
+        },
+        dataZoom: [
+          {
+            type: "slider",
+            show: true,
+            startValue: 0,
+            endValue: 17,
+            height: "15",
+            bottom: "1%",
+            zoomLock: true,
+          },
+        ],
+        xAxis: {
+          axisLabel: {
+            formatter: function (data) {
+              let valueTxt = "";
+              if (data.length > 4) {
+                valueTxt = data.substring(0, 5) + "..";
+              } else {
+                valueTxt = data;
+              }
+              return valueTxt;
+            },
+            textStyle: {
+              fontSize: "12",
+              fontFamily: "PingFangSC-Regular",
+              color: "#E1E5E9", // 坐标值的具体的颜色
+            },
+            // 设置字体的倾斜角度
+            interval: 0,
+            rotate: 30,
+          },
+          axisLine: {
+            lineStyle: {
+              color: "white",
+            },
+          },
+          data: data.scenic,
+        },
+        yAxis: {
+          splitLine: { show: false },
+          boundaryGap: false,
+          axisLine: {
+            lineStyle: {
+              color: "white",
+            },
+          },
+        }, //显示为整数 最小间距1
+        series: [
+          {
+            type: "bar",
+            name: "数量",
+            data: data.count,
+            barWidth: 15,
+            itemStyle: {
+              color: new this.$echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: "#527395" },
+                { offset: 0.5, color: "#77bef7" },
+                { offset: 1, color: "#77bef7" },
+              ]),
+            },
+            label: {
+              show: true,
+              position: "top",
+              color: "white",
+            },
+          },
+        ],
+      });
+    },
+    renderChart3(val) {
+      let myChart = echarts.init(document.getElementById("chart3"));
+      var option;
+let base = +new Date(1968, 9, 3);
+let oneDay = 24 * 3600 * 1000;
+let date = [];
+let data = [Math.random() * 300];
+for (let i = 1; i < 20000; i++) {
+  var now = new Date((base += oneDay));
+  date.push([now.getFullYear(), now.getMonth() + 1, now.getDate()].join('/'));
+  data.push(Math.round((Math.random() - 0.5) * 20 + data[i - 1]));
+}
+option = {
+  tooltip: {
+    trigger: 'axis',
+    position: function (pt) {
+      return [pt[0], '10%'];
+    }
+  },
+  title: {
+    left: 'center',
+    text: 'Large Area Chart'
+  },
+  toolbox: {
+    feature: {
+      dataZoom: {
+        yAxisIndex: 'none'
+      },
+      restore: {},
+      saveAsImage: {}
+    }
+  },
+  xAxis: {
+    type: 'category',
+    boundaryGap: false,
+    data: date
+  },
+  yAxis: {
+    type: 'value',
+    boundaryGap: [0, '100%']
+  },
+  dataZoom: [
+    {
+      type: 'inside',
+      start: 0,
+      end: 10
+    },
+    {
+      start: 0,
+      end: 10
+    }
+  ],
+  series: [
+    {
+      name: 'Fake Data',
+      type: 'line',
+      symbol: 'none',
+      sampling: 'lttb',
+      itemStyle: {
+        color: 'rgb(255, 70, 131)'
+      },
+      areaStyle: {
+        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+          {
+            offset: 0,
+            color: 'rgb(255, 158, 68)'
+          },
+          {
+            offset: 1,
+            color: 'rgb(255, 70, 131)'
+          }
+        ])
+      },
+      data: data
+    }
+  ]
+};
+      option && myChart.setOption(option);
+    },
     changeChartTab(val) {
       console.log(val);
       if (!val) {
@@ -301,6 +508,8 @@ export default {
       var middata = [];
       this.destroy();
       this.postPathData(that.mode);
+      this.postDayChange(that.mode);
+      this.postScenicChange(that.mode);
       if (this.json.where === 1) {
         data = shengline;
         if (that.mode === "流出") {
@@ -600,7 +809,7 @@ export default {
         );
 
         that.lineDataSet = new mapv.DataSet(lineData);
-                console.log(that.lineDataSet);
+        console.log(that.lineDataSet);
         var lineOptions = {
           context: "2d",
           strokeStyle: "rgba(255, 250, 50, 0.8)",
@@ -700,10 +909,11 @@ export default {
   height: 100%;
 }
 .network-pt {
-  padding: 7px;
+  padding: 5px;
 }
 .network-right {
   position: absolute;
+  z-index: 9999999;
   right: 0.4%;
   top: 0.6%;
   width: calc(20vw);
@@ -845,11 +1055,38 @@ export default {
 }
 .network-bottom {
   position: absolute;
+  z-index: 9999999;
   left: 0.4%;
   bottom: 1%;
   width: calc(79vw);
   height: calc(35vh);
   background: url("../../assets/img/长方形.png");
   background-size: 100% 100%;
+  display: flex;
+  flex-direction: row;
+  .network-bottom-content {
+    height: 100%;
+    width: 50%;
+    .right-title {
+      height: 11%;
+      width: 60%;
+      background: url("../../assets/img/titlebg.png") no-repeat;
+      background-size: 60% 100%;
+      > span {
+        color: #e2ebeb;
+        display: block;
+        padding-left: 14%;
+        font-size: 15px;
+        line-height: 26px;
+        text-align: left;
+        text-shadow: 0 0 8px #fff, 0 0 10px #fff,
+          0 0 12px rgba(48, 218, 218, 0.397);
+      }
+    }
+    .chart {
+      height: 89%;
+      width: 100%;
+    }
+  }
 }
 </style>
