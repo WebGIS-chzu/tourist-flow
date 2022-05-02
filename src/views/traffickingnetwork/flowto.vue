@@ -66,7 +66,7 @@
       </div>
       <div class="network-bottom-content">
         <div class="right-title">
-          <span>分析条件</span>
+          <span>{{ wherename }}{{ mode }}游客日变化</span>
         </div>
         <div class="chart" id="chart3"></div>
       </div>
