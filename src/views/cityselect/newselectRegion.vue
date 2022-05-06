@@ -459,7 +459,7 @@ p {
 #selectRegion #choice {
   opacity: 0;
   position: absolute;
-  z-index: -1000;
+  z-index: 1000000;
   /* border: 1px solid rgba(25, 186, 139, 0.2);
   background-color: rgba(40, 43, 57, 1); */
   border: 1px solid rgba(44, 165, 202, 0.589);

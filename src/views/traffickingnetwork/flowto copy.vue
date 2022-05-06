@@ -130,7 +130,6 @@ export default {
         },
       ],
       // 地图
-      zommflag:false,
       map: null,
       // 中国尺度线
       lineData: null,
@@ -452,23 +451,23 @@ export default {
           {
             data: data,
             type: "line",
-            symbol: "none",
-            sampling: "lttb",
-            itemStyle: {
-              color: "#F2597F",
-            },
-            areaStyle: {
-              color: this.$echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                {
-                  offset: 0,
-                  color: "rgba(213,72,120,0.8)",
-                },
-                {
-                  offset: 1,
-                  color: "rgba(213,72,120,0.3)",
-                },
-              ]),
-            },
+            symbol: 'none',
+      sampling: 'lttb',
+      itemStyle: {
+        color: '#F2597F'
+      },
+      areaStyle: {
+        color: this.$echarts.graphic.LinearGradient(0, 0, 0, 1, [
+          {
+            offset: 0,
+            color: 'rgba(213,72,120,0.8)'
+          },
+          {
+            offset: 1,
+            color: 'rgba(213,72,120,0.3)'
+          }
+        ])
+      },
           },
         ],
       });
@@ -498,51 +497,7 @@ export default {
         destination: center,
       });
       that.addLayer(shengline);
-      this.echartsRight(shengline, 0);
-    },
-
-    //解决迁徙线不刷新的问题，在这里使用手动变更缩放比例，强制线渲染
-    changeZoom() {
-      var that = this;
-      // 获取当前镜头位置的笛卡尔坐标
-      let cameraPos = that.map.scene.camera.position;
-
-      // 获取当前坐标系标准
-      let ellipsoid = that.map.scene.globe.ellipsoid;
-
-      // 根据坐标系标准，将笛卡尔坐标转换为地理坐标
-      let cartographic = ellipsoid.cartesianToCartographic(cameraPos);
-
-      // 获取镜头的高度
-      let height = cartographic.height;
-
-      let centerLon = parseFloat(
-        Cesium.Math.toDegrees(cartographic.longitude).toFixed(8)
-      );
-      let centerLat = parseFloat(
-        Cesium.Math.toDegrees(cartographic.latitude).toFixed(8)
-      );
-      if (this.zommflag) {
-        that.map.scene.camera.flyTo({
-          destination: Cesium.Cartesian3.fromDegrees(
-            centerLon,
-            centerLat,
-            height / 1.1
-          ),
-          duration: 1.0,
-        });
-      } else if (this.zommflag <= 0.5) {
-        // 镜头拉远
-        that.map.scene.camera.flyTo({
-          destination: Cesium.Cartesian3.fromDegrees(
-            centerLon,
-            centerLat,
-            height * 1.1
-          ),
-          duration: 1.0,
-        });
-      }
-      this.zommflag=true;
+      // this.echartsRight(shengline, 0);
     },
     // 切换尺度
     scaleChange() {
@@ -554,9 +509,6 @@ export default {
       this.postPathData(that.mode);
       this.postDayChange(that.mode);
       this.postScenicChange(that.mode);
-      if (this.json.name === "中国") {
-        this.addLayer(data);
-      }
       if (this.json.where === 1) {
         data = shengline;
         if (that.mode === "流出") {
@@ -662,7 +614,6 @@ export default {
           return a.count - b.count;
         });
         this.addcurveLayer(qianxidata);
-        eventBum.$emit("right", [that.mode, qianxidata, this.json.where]);
       }
       var count = 0;
       for (let y = 0; y < qianxidata.length; y++) {
@@ -671,7 +622,6 @@ export default {
       }
       that.numbersName = this.json.name.substring(0, 4) + that.mode + "游客数";
       that.lose = count;
-      that.changeZoom();
     },
     // 销毁图层
     destroy(e) {
@@ -743,7 +693,7 @@ export default {
             1.0: "#ffaa00",
           },
           lineWidth: 0.5,
-          // max: 5,
+          max: 5,
           draw: "intensity",
         };
         that.countryLineLayer = new CesiumZondy.Overlayer.MapvLayer(
@@ -840,9 +790,58 @@ export default {
         });
       }
       if (that.textDataSet === null) {
+        that.textDataSet = new mapv.DataSet(textData);
+        var textOptions = {
+          context: "2d",
+          draw: "text",
+          font: "14px Arial",
+          fillStyle: "white",
+          shadowColor: "yellow",
+          shadowBlue: 10,
+          zIndex: 11,
+          shadowBlur: 10,
+        };
+        new CesiumZondy.Overlayer.MapvLayer(
+          that.map,
+          that.textDataSet,
+          textOptions
+        );
+
+        that.lineDataSet = new mapv.DataSet(lineData);
+        console.log(that.lineDataSet);
+        var lineOptions = {
+          context: "2d",
+          strokeStyle: "rgba(255, 250, 50, 0.8)",
+          shadowColor: "rgba(255, 250, 50, 1)",
+          shadowBlur: 15,
+          lineWidth: 1.5,
+          zIndex: 150,
+          draw: "simple",
+        };
+        new CesiumZondy.Overlayer.MapvLayer(
+          that.map,
+          that.lineDataSet,
+          lineOptions
+        );
+        var pointOptions = {
+          context: "2d",
+          fillStyle: "rgba(254,175,3,0.7)",
+          shadowColor: "rgba(55, 50, 250, 0.5)",
+          shadowBlur: 10,
+          size: 5,
+          zIndex: 10,
+          draw: "simple",
+        };
+        that.pointDataSet = new mapv.DataSet(pointData);
+        new CesiumZondy.Overlayer.MapvLayer(
+          that.map,
+          that.pointDataSet,
+          pointOptions
+        );
         that.timeDataSet = new mapv.DataSet(timeData);
         var timeOptions = {
           context: "2d",
+          fillStyle: "rgba(255, 250, 250, 0.5)",
           zIndex: 200,
           size: 2.5,
           animation: {
@@ -870,55 +869,6 @@ export default {
           that.timeDataSet,
           timeOptions
         );
-        that.textDataSet = new mapv.DataSet(textData);
-        var textOptions = {
-          context: "2d",
-          draw: "text",
-          font: "14px Arial",
-          fillStyle: "white",
-          shadowColor: "yellow",
-          shadowBlue: 10,
-          zIndex: 11,
-          shadowBlur: 10,
-        };
-        new CesiumZondy.Overlayer.MapvLayer(
-          that.map,
-          that.textDataSet,
-          textOptions
-        );
-
-        that.lineDataSet = new mapv.DataSet(lineData);
-        var lineOptions = {
-          context: "2d",
-          strokeStyle: "rgba(255, 250, 50, 0.8)",
-          shadowColor: "rgba(255, 250, 50, 1)",
-          shadowBlur: 20,
-          lineWidth: 2,
-          zIndex: 150,
-          draw: "simple",
-        };
-        new CesiumZondy.Overlayer.MapvLayer(
-          that.map,
-          that.lineDataSet,
-          lineOptions
-        );
-
-        var pointOptions = {
-          context: "2d",
-          fillStyle: "rgba(254,175,3,0.7)",
-          shadowColor: "rgba(55, 50, 250, 0.5)",
-          shadowBlur: 10,
-          size: 5,
-          zIndex: 10,
-          draw: "simple",
-        };
-        that.pointDataSet = new mapv.DataSet(pointData);
-        new CesiumZondy.Overlayer.MapvLayer(
-          that.map,
-          that.pointDataSet,
-          pointOptions
-        );
-        this.$forceUpdate();
       } else {
         that.timeDataSet.set(timeData);
         that.textDataSet.set(textData);
@@ -926,7 +876,7 @@ export default {
         that.pointDataSet.set(pointData);
       }
     },
-    echartsRight(datas, e) {},
+    // echartsRight(datas, e) {},
   },
 };
 </script>
