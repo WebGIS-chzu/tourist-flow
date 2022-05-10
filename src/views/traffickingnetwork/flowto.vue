@@ -1091,6 +1091,7 @@ export default {
     padding: 6px 5px;
     font-size: 13px;
     border: none;
+        background-color: transparent;
   }
   /deep/.el-radio-button__orig-radio:checked + .el-radio-button__inner {
     border: none;
@@ -1100,6 +1101,10 @@ export default {
     color: white;
     border: none;
     background: url("../../assets/img/tabBG.png") no-repeat center center;
+  }
+   /deep/.el-radio-button__orig-radio:checked+.el-radio-button__inner{
+        -webkit-box-shadow: 0px 0 0 0 #409eff;
+    box-shadow: 0px 0 0 0 #409eff;
   }
 }
 .network-bottom {
