@@ -130,7 +130,7 @@ export default {
         },
       ],
       // 地图
-      zommflag:false,
+      zommflag: false,
       map: null,
       // 中国尺度线
       lineData: null,
@@ -138,6 +138,7 @@ export default {
       countryLineLayer: null,
       MovingLayer: null,
       // 省市尺度线
+      numberDataSet: null,
       textDataSet: null,
       lineDataSet: null,
       pointDataSet: null,
@@ -175,7 +176,6 @@ export default {
           path: (mode == "流出" ? 0 : 1).toString(),
         })
         .then((res) => {
-          console.log(res);
           this.renderChart2(res.data);
         });
     },
@@ -191,7 +191,6 @@ export default {
           path: (mode == "流出" ? 0 : 1).toString(),
         })
         .then((res) => {
-          console.log(res);
           this.renderChart3(res.data.count);
         });
     },
@@ -207,7 +206,6 @@ export default {
           path: (mode == "流出" ? 0 : 1).toString(),
         })
         .then((res) => {
-          console.log(res);
           var i = 20;
           this.data1x.length = 0;
           this.data1y.length = 0;
@@ -230,7 +228,6 @@ export default {
           path: (mode == "流出" ? 0 : 1).toString(),
         })
         .then((res) => {
-          console.log(res);
           var i = 20;
           this.data1x.length = 0;
           this.data1y.length = 0;
@@ -474,7 +471,6 @@ export default {
       });
     },
     changeChartTab(val) {
-      console.log(val);
       if (!val) {
         this.postPathData(this.mode);
       } else {
@@ -542,7 +538,7 @@ export default {
           duration: 1.0,
         });
       }
-      this.zommflag=true;
+      this.zommflag = true;
     },
     // 切换尺度
     scaleChange() {
@@ -599,6 +595,7 @@ export default {
             toCenter: { lng: element.拐入经度, lat: element.拐入纬度 },
             count: element.数量,
             to: element.拐入省,
+            number: element.数量,
           });
         }
       } else if (this.json.where === 2) {
@@ -634,6 +631,7 @@ export default {
         }
         for (let i = 0; i < middata.length; i++) {
           const element = middata[i];
+          console.log(element);
           qianxidata.push({
             middata: element,
             from: element.拐出市,
@@ -641,6 +639,7 @@ export default {
             toCenter: { lng: element.拐入经度, lat: element.拐入纬度 },
             count: element.数量,
             to: element.拐入市,
+            number: element.数量,
           });
         }
       } else if (this.json.where === 3) {
@@ -650,7 +649,6 @@ export default {
           showClose: true,
         });
       }
-      // console.log(qianxidata)
       if (qianxidata === []) {
         this.$message({
           message: "暂无数据！",
@@ -779,10 +777,12 @@ export default {
       var that = this;
       var qianxi = new mapv.DataSet(datas);
       var qianxiData = qianxi.get();
+      console.log(qianxiData);
       var lineData = [];
       var pointData = [];
       var textData = [];
       var timeData = [];
+      var numberData = [];
       var citys = {};
       for (let i = 0; i < qianxiData.length; i++) {
         var fromCenter = qianxiData[i].fromCenter;
@@ -817,6 +817,20 @@ export default {
             coordinates: [toCenter.lng, toCenter.lat],
           },
           text: qianxiData[i].to,
+        });
+        numberData.push({
+          geometry: {
+            type: "Point",
+            coordinates: [fromCenter.lng, fromCenter.lat],
+          },
+          text: qianxiData[i].number,
+        });
+        numberData.push({
+          geometry: {
+            type: "Point",
+            coordinates: [toCenter.lng, toCenter.lat],
+          },
+          text: qianxiData[i].number,
         });
 
         var curve = mapv.utilCurve.getPoints([fromCenter, toCenter]);
@@ -880,13 +894,32 @@ export default {
           shadowBlue: 10,
           zIndex: 11,
           shadowBlur: 10,
+
         };
         new CesiumZondy.Overlayer.MapvLayer(
           that.map,
           that.textDataSet,
           textOptions
         );
-
+        that.numberDataSet = new mapv.DataSet(numberData);
+        var numberOptions = {
+          context: "2d",
+          draw: "text",
+          font: "16px Arial",
+          fillStyle: "white",
+          shadowColor: "yellow",
+          shadowBlue: 10,
+          zIndex: 11,
+          shadowBlur: 10,
+                    offset: { // 文本便宜值
+        x: 0,
+        y: -15    }
+        };
+        new CesiumZondy.Overlayer.MapvLayer(
+          that.map,
+          that.numberDataSet,
+          numberOptions
+        );
         that.lineDataSet = new mapv.DataSet(lineData);
         var lineOptions = {
           context: "2d",
@@ -924,6 +957,7 @@ export default {
         that.textDataSet.set(textData);
         that.lineDataSet.set(lineData);
         that.pointDataSet.set(pointData);
+                that.numberDataSet.set(numberData);
       }
     },
     echartsRight(datas, e) {},
@@ -1091,7 +1125,7 @@ export default {
     padding: 6px 5px;
     font-size: 13px;
     border: none;
-        background-color: transparent;
+    background-color: transparent;
   }
   /deep/.el-radio-button__orig-radio:checked + .el-radio-button__inner {
     border: none;
@@ -1102,8 +1136,8 @@ export default {
     border: none;
     background: url("../../assets/img/tabBG.png") no-repeat center center;
   }
-   /deep/.el-radio-button__orig-radio:checked+.el-radio-button__inner{
-        -webkit-box-shadow: 0px 0 0 0 #409eff;
+  /deep/.el-radio-button__orig-radio:checked + .el-radio-button__inner {
+    -webkit-box-shadow: 0px 0 0 0 #409eff;
     box-shadow: 0px 0 0 0 #409eff;
   }
 }
