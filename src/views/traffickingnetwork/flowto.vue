@@ -496,6 +496,7 @@ export default {
       that.addLayer(shengline);
       this.echartsRight(shengline, 0);
     },
+    
 
     //解决迁徙线不刷新的问题，在这里使用手动变更缩放比例，强制线渲染
     changeZoom() {
@@ -991,6 +992,10 @@ export default {
   width: 100%;
   height: 100%;
 }
+#map1{
+  height: 100%;
+  width: 100%;
+}
 .network-pt {
   padding: 5px;
 }
@@ -1001,7 +1006,8 @@ export default {
   top: 0.6%;
   width: calc(20vw);
   height: 98.5%;
-  background: url("../../assets/img/side.png");
+  background: url("../../assets/img/side.png")no-repeat;
+  background-size: 100% 100%;
   .right-title {
     height: 4%;
     width: 100%;
